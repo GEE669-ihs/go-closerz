@@ -39,7 +39,7 @@ function FlipCard({ card, style }) {
           <CardArtwork card={card} />
         </span>
         <span className={`face back collector-card tone-${card.tone}`}>
-          <CardArtwork card={card} />
+          <span className="back-design" aria-hidden="true" />
         </span>
       </span>
     </button>

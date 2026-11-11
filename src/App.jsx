@@ -216,10 +216,13 @@ function Login({ onLogin }) {
   const [pass, setPass] = useState('')
   const [show, setShow] = useState(false)
   const [err, setErr] = useState('')
+  const [notice, setNotice] = useState('')
   const isLogin = mode === 'login'
-  const switchTo = (m) => { setMode(m); setErr('') }
+  const switchTo = (m) => { setMode(m); setErr(''); setNotice('') }
   const submit = (e) => {
     e.preventDefault()
+    setErr('')
+    setNotice('')
     const users = read(USERS_KEY, {})
     const em = email.trim().toLowerCase()
     if (!/^\S+@\S+\.\S+$/.test(em)) return setErr('Format email belum benar.')
@@ -228,6 +231,11 @@ function Login({ onLogin }) {
       if (users[em]) return setErr('Email ini sudah terdaftar. Silakan masuk.')
       users[em] = pass
       localStorage.setItem(USERS_KEY, JSON.stringify(users))
+      setEmail(em)
+      setPass('')
+      setMode('login')
+      setNotice('Akun berhasil dibuat. Silakan masuk dengan akunmu.')
+      return
     } else if (users[em] !== pass) {
       return setErr('Email atau kata sandi salah.')
     }
@@ -236,33 +244,38 @@ function Login({ onLogin }) {
   return (
     <main className="login">
       <div className="login-wrap">
-        <header className="login-bar"><b className="logo">G✦Closerz</b><span>Your collection starts here.</span></header>
-        <div className="login-grid">
-          <div className="login-card">
-            <h2 className="card-title">{isLogin ? 'Welcome back, Closer.' : 'Join the Closerz.'}</h2>
-            <p className="card-sub">{isLogin ? 'Masuk untuk menjelajahi dunia photocard-mu.' : 'Buat akun untuk mulai mengoleksi.'}</p>
-            <form onSubmit={submit} noValidate>
-              <label>Email
-                <input type="email" value={email} placeholder="nama@email.com" onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-              </label>
-              <label>Kata sandi
-                <span className="pw">
-                  <input type={show ? 'text' : 'password'} value={pass} placeholder="Masukkan kata sandi" onChange={(e) => setPass(e.target.value)} autoComplete={isLogin ? 'current-password' : 'new-password'} />
-                  <button type="button" className="eye" onClick={() => setShow((v) => !v)} aria-label={show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}>
-                    <Icon>{show
-                      ? <><path d="M3 3l18 18" /><path d="M10.6 10.6a3 3 0 004.2 4.2" /><path d="M6.3 6.3C3.9 8 2.5 12 2.5 12s3.5 7 9.5 7a9.7 9.7 0 004-.9M9.9 5.1A10 10 0 0112 5c6 0 9.5 7 9.5 7a16 16 0 01-2.2 3.2" /></>
-                      : <><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z" /><circle cx="12" cy="12" r="3" /></>}</Icon>
-                  </button>
-                </span>
-              </label>
-              {err && <p className="err" role="alert">{err}</p>}
-              <button className="btn primary wide">{isLogin ? 'Masuk & mulai koleksi' : 'Daftar & mulai koleksi'}<Icon><path d="M5 12h14M13 6l6 6-6 6" /></Icon></button>
-            </form>
-            <p className="swap">{isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'} <button className="link" onClick={() => switchTo(isLogin ? 'signup' : 'login')}>{isLogin ? 'Daftar di sini' : 'Masuk di sini'}</button></p>
-            <p className="login-note"><Icon><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></Icon>Akses beranda dan katalog menggunakan akunmu.</p>
-          </div>
+          <section className="login-screen" aria-label="Masuk ke GO Closerz">
+            <header className="login-bar"><b className="logo">G✦Closerz</b><span>Your collection starts here.</span></header>
+            <div className="login-grid">
+              <div className="login-card">
+                <h2 className="card-title">{isLogin ? 'Welcome back, Closer.' : 'Join the Closerz.'}</h2>
+                <p className="card-sub">{isLogin ? 'Masuk untuk menjelajahi dunia photocard-mu.' : 'Buat akun untuk mulai mengoleksi.'}</p>
+                <form onSubmit={submit} noValidate>
+                  <label>Email
+                    <input type="email" value={email} placeholder="nama@email.com" onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+                  </label>
+                  <label>Kata sandi
+                    <span className="pw">
+                      <input type={show ? 'text' : 'password'} value={pass} placeholder="Masukkan kata sandi" onChange={(e) => setPass(e.target.value)} autoComplete={isLogin ? 'current-password' : 'new-password'} />
+                      <button type="button" className="eye" onClick={() => setShow((v) => !v)} aria-label={show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}>
+                        <Icon>{show
+                          ? <><path d="M3 3l18 18" /><path d="M10.6 10.6a3 3 0 004.2 4.2" /><path d="M6.3 6.3C3.9 8 2.5 12 2.5 12s3.5 7 9.5 7a9.7 9.7 0 004-.9M9.9 5.1A10 10 0 0112 5c6 0 9.5 7 9.5 7a16 16 0 01-2.2 3.2" /></>
+                          : <><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z" /><circle cx="12" cy="12" r="3" /></>}</Icon>
+                      </button>
+                    </span>
+                  </label>
+                  {err && <p className="err" role="alert">{err}</p>}
+                  {notice && <p className="success" role="status">{notice}</p>}
+                  <button className="btn primary wide">{isLogin ? 'Masuk & mulai koleksi' : 'Daftar & mulai koleksi'}<Icon><path d="M5 12h14M13 6l6 6-6 6" /></Icon></button>
+                </form>
+                <p className="swap">{isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'} <button className="link" onClick={() => switchTo(isLogin ? 'signup' : 'login')}>{isLogin ? 'Daftar di sini' : 'Masuk di sini'}</button></p>
+                <p className="login-note"><Icon><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></Icon>Akses beranda dan katalog menggunakan akunmu.</p>
+              </div>
+            </div>
+            <a className="intro-scroll" href="#login-intro">Scroll untuk melihat pengenalan kartu <span>↓</span></a>
+          </section>
 
-          <section className="login-hero">
+          <section className="login-hero" id="login-intro" aria-label="Pengenalan koleksi photocard">
             <h1 className="login-title">A little closer.<span>A lot more you.</span></h1>
             <p className="login-lead">Satu tempat untuk bias dan kartu favoritmu. Masuk dulu, lalu temukan koleksi yang paling kamu.</p>
             <div className="login-cards" aria-label="Photocard pilihan">
@@ -275,7 +288,6 @@ function Login({ onLogin }) {
             </div>
           </section>
         </div>
-      </div>
     </main>
   )
 }
